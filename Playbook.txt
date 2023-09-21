@@ -1,0 +1,32 @@
+New Folder.
+
+##### Creating ansible playground.
+
+-Create folder playbook inside ansible folder.
+-Create a playbook textfile name demo.txt
+-vim create_file.yaml
+write : 
+---
+- name: This playbook will create a file for tracking all changes
+  hosts: all
+  become: true
+  tasks:
+    - name: ceating file
+      file:
+        path: /home/ubuntu/demo.txt
+        state: touch
+- apply command to create files within the hosts:
+ansible-playbook create_file.yaml -i /home/ubuntu/ansible/hosts --private-key=~/.ssh/ansible_key.
+
+-Create a playbook file for users.
+-vim create_user.yaml
+write:
+---
+- name: This file will create users
+  hosts: all
+  become: true
+  tasks:
+    - name: Creating user with name paradigm
+      user: name=paradigm
+Apply command to create userfile within the hosts.
+ansible-playbook create_user.yaml -i /home/ubuntu/ansible/hosts --private-key=~/.ssh/ansible_key
