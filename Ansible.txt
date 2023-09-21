@@ -1,0 +1,57 @@
+######### Ansible installation 2023.
+
+- Create your Ansible manager and hosts.
+-Install ansible on  mananger Cd to .ssh
+-vim ansible_key and import the key-pair used in creating both hosts and manager
+-Go back to home dir and create Ansible folder
+-cd into ansible folder and vim hosts 
+ write out this :
+[Servers]
+server1 ansible_host=18.220.236.102
+server2 ansible_host=18.216.20.235
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+
+-Create ansible inventory:
+ansible-inventory --list -y -i /home/ubuntu/ansible/hosts
+- Grant permissions to .ssh and ansible_key.
+permission:
+chmod +x ~/.ssh
+chmod 600 ~/.ssh/ansible_key
+-Check for hosts connectivity by ping.
+ansible all -m ping -i /home/ubuntu/ansible/hosts --private-key=~/.ssh/ansible_key
+-Check for space in 
+ansible all -a "free -h" -i /home/ubuntu/ansible/hosts --private-key=~/.ssh/ansible_key.
+
+
+##### Creating ansible playground.
+
+-Create folder playbook inside ansible folder.
+-Create a playbook textfile name demo.txt
+-vim create_file.yaml
+write : 
+---
+- name: This playbook will create a file for tracking all changes
+  hosts: all
+  become: true
+  tasks:
+    - name: ceating file
+      file:
+        path: /home/ubuntu/demo.txt
+        state: touch
+- apply command to create files within the hosts:
+ansible-playbook create_file.yaml -i /home/ubuntu/ansible/hosts --private-key=~/.ssh/ansible_key
+
+-Create a playbook file for users.
+-vim create_user.yaml
+write:
+---
+- name: This file will create users
+  hosts: all
+  become: true
+  tasks:
+    - name: Creating user with name paradigm
+      user: name=paradigm
+Apply command to create userfile within the hosts.
+ansible-playbook create_user.yaml -i /home/ubuntu/ansible/hosts --private-key=~/.ssh/ansible_key
