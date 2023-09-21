@@ -1,0 +1,110 @@
+Step 1 - Update System Packages
+sudo apt update -y
+Step 2 - Create a System User for Prometheus
+sudo groupadd --system prometheus
+sudo useradd -s /sbin/nologin --system -g prometheus prometheus
+Step 3 - Create Directories for Prometheus
+sudo mkdir /etc/prometheus
+sudo mkdir /var/lib/prometheus
+Step 4 - Download Prometheus and Extract Files
+wget https://github.com/prometheus/prometheus/releases/download/v2.43.0/prometheus-2.43.0.linux-amd64.tar.gz
+tar vxf prometheus*.tar.gz
+Step 5- Navigate to the Prometheus Directory
+cd prometheus*/
+
+Configuring Prometheus on Ubuntu 22.04
+Step 1 - Move the Binary Files & Set Owner
+sudo mv prometheus /usr/local/bin
+sudo mv promtool /usr/local/bin
+sudo chown prometheus:prometheus /usr/local/bin/prometheus
+sudo chown prometheus:prometheus /usr/local/bin/promtool
+
+Step 2 - Move the Configuration Files & Set Owner
+sudo mv consoles /etc/prometheus
+sudo mv console_libraries /etc/prometheus
+sudo mv prometheus.yml /etc/prometheus
+sudo chown prometheus:prometheus /etc/prometheus
+sudo chown -R prometheus:prometheus /etc/prometheus/consoles
+sudo chown -R prometheus:prometheus /etc/prometheus/console_libraries
+sudo chown -R prometheus:prometheus /var/lib/prometheus
+
+sudo nano /etc/prometheus/prometheus.yml
+Step 2 - Create Prometheus Systemd Service
+sudo nano /etc/systemd/system/prometheus.service
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+    --config.file /etc/prometheus/prometheus.yml \
+    --storage.tsdb.path /var/lib/prometheus/ \
+    --web.console.templates=/etc/prometheus/consoles \
+    --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+
+Step 3 - Reload Systemd
+sudo systemctl daemon-reload
+Step 4 - Start Prometheus Service
+sudo systemctl enable prometheus
+sudo systemctl start prometheus
+
+Step 5 - Check Prometheus Status
+sudo systemctl status prometheus
+sudo ufw allow 9090/tcp
+
+Install prometheus note-exporter
+sudo apt update -y
+sudo apt-get install -y prometheus-node-exporter
+wget https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz
+Extract the downloaded archive
+tar -xf node_exporter-0.15.2.linux-amd64.tar.gz
+Move the node_exporter binary to /usr/local/bin:
+sudo mv node_exporter-0.15.2.linux-amd64/node_exporter /usr/local/bin
+
+Remove the residual files with:
+rm -r node_exporter-0.15.2.linux-amd64*
+sudo useradd -rs /bin/false node_exporter
+sudo nano /etc/systemd/system/node_exporter.service
+
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl daemon-reload
+sudo systemctl enable node_exporter
+sudo systemctl start node_exporter
+
+
+
+Setting up Grafana For Prometheus
+First, Install Grafana on our instance which queries our Prometheus server.
+
+wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.0.4_amd64.deb
+sudo apt-get install -y adduser libfontconfig
+sudo dpkg -i grafana_5.0.4_amd64.deb
+
+sudo systemctl daemon-reload && sudo systemctl enable grafana-server && sudo systemctl start grafana-server.service
+
+http://your.server.ip:3000. The default user and password is admin / admin.
+
+
+https://www.cherryservers.com/blog/install-prometheus-ubuntu#how-to-install-prometheus-on-ubuntu-2204
+
+
+
