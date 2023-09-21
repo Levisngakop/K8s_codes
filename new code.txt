@@ -1,0 +1,23 @@
+provider "aws" {
+  
+
+    region = "ap-south-1"
+}
+
+variable "create_instance" {
+    description = "creating ec2"
+    type = string
+    default = "a"
+    
+}
+
+resource "aws_instance" "sam" {
+
+  count=var.create_instance == "a" ? 1 : 0
+  ami = "ami-0da59f1af71ea4ad2"
+  instance_type = "t2.micro"
+
+  tags={
+    Name="demo"
+  }
+}
