@@ -1,0 +1,74 @@
+Setting up KOPS
+
+To create a K8s cluster, start by creating and EC2 instance.
+create an IAM role and add admin previlage and assign the role to the kops instance.
+Create route53 and an S3 bucket where
+S3 bucket name:paradigm1.in.k8s
+Route53 name:paradigm1.in
+Then next is to install awscli on the kops instance then start runing the commands from curl.
+######All commads Run to setup kop cluster####
+ubuntu@ip-172-31-60-212:~$ history
+    1  clear
+    2  sudo apt update
+    3  sudo apt install awscli
+    9  curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+   10  chmod +x kops-linux-amd64
+   11  sudo mv kops-linux-amd64 /usr/local/bin/kops
+   12  curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+   13  chmod +x ./kubectl
+	vi ~/.bashrc
+   19  source ~/.bashrc
+   14  sudo mv ./kubectl /usr/local/bin/kubectl
+export KOPS_CLUSTER_NAME=paradigm.com
+export KOPS_STATE_STORE=s3://paradigm.com.k8ss
+   15  aws s3 mb s3://paradigm.com.k8s --region us-east-1
+   16  aws s3 mb s3://paradigm1.com.k8s --region us-east-1
+   21  kops create cluster --state=${KOPS_STATE_STORE} --node-count=2 --master-size=t3.medium --node-size=t3.medium --zones=us-east-1a,us-east-1b --name=${KOPS_CLUSTER_NAME} --dns private --master-count 1
+   22  kops update cluster --name paradigm1.com --yes --admin
+   24  kops validate cluster
+   26  kubectl get pods
+   27  kubectl get namespaces
+   30  kubectl get nodes -o wide
+   33  kubectl run nginx --image nginx
+   37  kops delete cluster --yes
+   39  kops validate cluster
+   40  kops create cluster --state=${KOPS_STATE_STORE} --node-count=2 --master-size=t3.medium --node-size=t3.medium --zones=us-east-1a,us-east-1b --name=${KOPS_CLUSTER_NAME} --dns private --master-count 1
+Commands to run and restore all clusters within my KOpserver.
+***********
+kops create cluster \
+--state=${KOPS_STATE_STORE} \
+--node-count=2 \
+--master-size=t3.medium \
+--node-size=t3.medium \
+--zones=us-east-2a,us-east-2b \
+--name=${KOPS_CLUSTER_NAME} \
+--dns private \
+--master-count 1
+Command run after running the commands above to relaod KOps
+kops update cluster --yes --admin
+#########
+Command to complete kill clusters.
+**************
+ kops delete cluster --yes
+   43  kops create cluster --state=${KOPS_STATE_STORE} --node-count=2 --master-size=t3.medium --node-size=t3.medium --zones=us-east-1a,us-east-1b --name=${KOPS_CLUSTER_NAME} --dns private --master-count 1
+   44  kops validate cluster
+   45  kops update cluster
+   49  kops delete cluster --yes
+   50  kops update cluster --yes --admin
+   51  kops update cluster: to check the status of kops.
+   55  history
+
+React
+
+Reply
+
+
+
+
+
+
+
+
+
+
+
